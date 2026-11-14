@@ -3,7 +3,10 @@ from fastapi.responses import HTMLResponse
 from pydantic import BaseModel, Field
 from .optimizer import Visit, schedule, sample_visits
 
-app = FastAPI(title="CARE-LINK MVP", version="0.1.0")
+from .v2_api import router as v2_router
+
+app = FastAPI(title="CARE-LINK MVP", version="0.2.0")
+app.include_router(v2_router)
 
 class VisitInput(BaseModel):
     id: str = Field(min_length=1, max_length=32)

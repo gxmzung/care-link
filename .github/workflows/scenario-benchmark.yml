@@ -1,0 +1,24 @@
+name: CARE-LINK multi-scenario benchmark
+on:
+  push:
+    branches: ["feat/scenario-benchmark-v0.5"]
+  workflow_dispatch:
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install -r requirements.txt
+      - run: python -m pytest -q
+      - name: Export 10 seeded synthetic scenarios
+        run: |
+          mkdir -p artifacts
+          python -m app.scenario_benchmark > artifacts/scenarios.json
+          python -m json.tool artifacts/scenarios.json > /dev/null
+      - uses: actions/upload-artifact@v4
+        with:
+          name: care-link-ten-synthetic-scenarios
+          path: artifacts/scenarios.json

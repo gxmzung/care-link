@@ -51,6 +51,13 @@ def optimize(visits, clinicians, time_limit_seconds=3):
         return {"routes": [{"clinician_id": c.id, "visits": [], "travel_minutes": 0} for c in clinicians],
                 "unassigned": [], "assigned_count": 0, "travel_minutes": 0, "constraint_violations": 0}
 
+    impossible = [v.id for v in visits if v.latest - v.duration < v.earliest]
+    if impossible:
+        feasible = [v for v in visits if v.id not in set(impossible)]
+        result = optimize(feasible, clinicians, time_limit_seconds)
+        result["unassigned"] = [v.id for v in visits if v.id in set(result["unassigned"]) or v.id in set(impossible)]
+        return result
+
     # One distinct start and end depot per clinician, so clinician origins may differ.
     n = len(visits)
     k = len(clinicians)
@@ -81,11 +88,6 @@ def optimize(visits, clinicians, time_limit_seconds=3):
     for i, v in enumerate(visits):
         idx = manager.NodeToIndex(i)
         # latest is latest permissible completion time
-        if v.latest - v.duration < v.earliest:
-            routing.AddDisjunction([idx], 100000)
-            time_dim.CumulVar(idx).SetRange(v.earliest, v.earliest)
-            # impossible windows handled by solver drop; avoid invalid range
-            continue
         time_dim.CumulVar(idx).SetRange(v.earliest, v.latest - v.duration)
         routing.AddDisjunction([idx], 100000)
     for vehicle, c in enumerate(clinicians):

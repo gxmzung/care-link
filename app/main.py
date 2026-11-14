@@ -4,9 +4,11 @@ from pydantic import BaseModel, Field
 from .optimizer import Visit, schedule, sample_visits
 
 from .v2_api import router as v2_router
+from .demo import router as demo_router
 
 app = FastAPI(title="CARE-LINK MVP", version="0.2.0")
 app.include_router(v2_router)
+app.include_router(demo_router)
 
 class VisitInput(BaseModel):
     id: str = Field(min_length=1, max_length=32)

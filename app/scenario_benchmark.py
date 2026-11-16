@@ -2,7 +2,7 @@
 import json
 import random
 from statistics import mean, median
-from .benchmark import baseline
+from .feasible_baseline import feasible_greedy
 from .multi_optimizer import Clinician, Visit, optimize
 
 
@@ -23,7 +23,7 @@ def evaluate(seeds=range(10), count=8, time_limit_seconds=1):
     rows = []
     for seed in seeds:
         visits, clinicians = scenario(seed, count)
-        control = baseline(visits, clinicians)
+        control = feasible_greedy(visits, clinicians)
         result = optimize(visits, clinicians, time_limit_seconds)
         both_feasible = (control["constraint_violations"] == 0
                          and result["constraint_violations"] == 0
@@ -33,12 +33,13 @@ def evaluate(seeds=range(10), count=8, time_limit_seconds=1):
         rows.append({"seed": seed, "visits": count, "baseline_travel_minutes": control["travel_minutes"],
                      "optimized_travel_minutes": result["travel_minutes"],
                      "baseline_violations": control["constraint_violations"],
+                     "baseline_assigned": control["assigned_count"],
                      "optimized_violations": result["constraint_violations"],
                      "optimized_assigned": result["assigned_count"],
                      "both_feasible": both_feasible,
                      "travel_reduction_percent": round(reduction, 2) if reduction is not None else None})
     valid = [r["travel_reduction_percent"] for r in rows if r["travel_reduction_percent"] is not None]
-    return {"data_type": "synthetic", "method": "seeded scenarios; ID-order baseline vs OR-Tools",
+    return {"data_type": "synthetic", "method": "seeded scenarios; deadline-first feasible greedy baseline vs OR-Tools",
             "scenario_count": len(rows), "comparable_scenarios": len(valid),
             "comparison_rate_percent": round(100 * len(valid) / len(rows), 2) if rows else 0,
             "mean_reduction_percent_comparable_only": round(mean(valid), 2) if valid else None,

@@ -30,7 +30,9 @@ def run():
     optimized = optimize(visits, clinicians, time_limit_seconds=3)
     return {"data_type": "synthetic", "scenario": "6 visits, 2 clinicians, synthetic Euclidean travel",
             "baseline": naive, "optimized": optimized,
-            "comparison_valid": naive["constraint_violations"] == 0 and optimized["constraint_violations"] == 0,
+            "comparison_valid": (naive["constraint_violations"] == 0
+                                 and optimized["constraint_violations"] == 0
+                                 and naive["assigned_count"] == optimized["assigned_count"] == len(visits)),
             "note": "Do not interpret travel reduction if baseline violates constraints; compare feasible schedules only."}
 
 

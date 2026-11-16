@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>CARE-LINK | 방문의료 일정 최적화 대시보드</title>
+  <link rel="stylesheet" href="/static/dashboard.css?v=0.6.1">
+  <script src="/static/dashboard.js?v=0.6.1" defer></script>
+</head>
+<body>
+  <aside class="sidebar" aria-label="대시보드 탐색">
+    <a class="logo" href="#dashboard" aria-label="CARE-LINK 대시보드 맨 위로">
+      <strong>CARE<span>—</span>LINK</strong>
+      <small>VISITING CARE<br>OPERATIONS</small>
+    </a>
+
+    <nav>
+      <p class="nav-label">WORKSPACE</p>
+      <a class="nav-item active" href="#dashboard"><b aria-hidden="true">▦</b> 연구 대시보드</a>
+      <a class="nav-item" href="#single-comparison"><b aria-hidden="true">◷</b> 일정 최적화</a>
+      <a class="nav-item" href="#scenario-analysis"><b aria-hidden="true">▥</b> 시나리오 분석</a>
+      <a class="nav-item" href="#validation"><b aria-hidden="true">☷</b> 실험 기록</a>
+      <p class="nav-label project-label">PROJECT</p>
+      <a class="nav-item" href="#scope"><b aria-hidden="true">◇</b> 연구 범위 및 한계</a>
+    </nav>
+
+    <div class="side-foot">
+      <strong>PAICHAI NEXUS</strong>
+      <p>방문의료 일정·이동 동선 운영지원<br>연구용 시뮬레이션 대시보드</p>
+    </div>
+  </aside>
+
+  <main class="main" id="dashboard">
+    <header class="toprow">
+      <span>NEXUS / CARE-LINK / RESEARCH DASHBOARD</span>
+      <div class="topright">
+        <span class="pill grey"><i></i> 합성 데이터</span>
+        <span class="pill">연구용 시제품 · v0.6</span>
+      </div>
+    </header>
+
+    <section class="hero" aria-labelledby="page-title">
+      <div>
+        <p class="eyebrow">OPERATIONS OPTIMIZATION</p>
+        <h1 id="page-title">방문의료 일정 최적화 대시보드</h1>
+        <p class="hero-copy">시간 제약을 준수하면서 의료진별 방문 일정과 이동시간을 비교합니다.</p>
+      </div>
+      <button id="refresh-button" class="refresh-button" type="button">
+        <span class="refresh-icon" aria-hidden="true">↻</span>
+        <span class="refresh-label">실험 결과 새로고침</span>
+      </button>
+    </section>
+
+    <div id="notice" class="notice" role="status" aria-live="polite" hidden></div>
+
+    <section class="metrics" aria-label="반복 실험 핵심 지표">
+      <article class="metric accent">
+        <p class="metric-label">반복 실험 평균 이동시간 감소율</p>
+        <p class="metric-value" id="mean-reduction">—</p>
+        <p class="metric-note">비교 가능한 합성 시나리오 · 탐욕 기준 대비</p>
+      </article>
+      <article class="metric">
+        <p class="metric-label">비교 가능 시나리오</p>
+        <p class="metric-value" id="comparable-scenarios">—</p>
+        <p class="metric-note">양쪽 일정 전건 배정 및 제약 충족</p>
+      </article>
+      <article class="metric">
+        <p class="metric-label">최적화 방문 배정</p>
+        <p class="metric-value" id="optimized-assigned">—</p>
+        <p class="metric-note">반복 실험 전체 합성 방문 기준</p>
+      </article>
+      <article class="metric">
+        <p class="metric-label">최적화 시간 제약 위반</p>
+        <p class="metric-value" id="optimized-violations">—</p>
+        <p class="metric-note">OR-Tools 최적화 일정 기준</p>
+      </article>
+    </section>
+
+    <section class="middle-grid">
+      <article class="panel scenario-panel" id="scenario-analysis">
+        <div class="panel-heading">
+          <div>
+            <h2>시나리오별 이동시간 감소율</h2>
+            <p>시드 0–9 · 동일한 합성 조건 · 마감시간 우선 독립 탐욕 기준 대비</p>
+          </div>
+          <span class="tag">반복 실험 · N=10</span>
+        </div>
+        <div class="chart-wrap">
+          <div id="scenario-chart" class="chart" aria-label="시드별 이동시간 감소율 막대그래프"></div>
+        </div>
+        <div class="chart-foot">
+          <span>최소 <strong id="minimum-reduction">—</strong><i>·</i> 중앙값 <strong id="median-reduction">—</strong></span>
+          <span>최대 <strong id="maximum-reduction">—</strong></span>
+        </div>
+      </article>
+
+      <article class="panel comparison-panel" id="single-comparison">
+        <div class="panel-heading">
+          <div>
+            <h2>단일 일정 비교</h2>
+            <p>별도 합성 시나리오 · 방문 6건 · 의료진 2명</p>
+          </div>
+          <span class="tag">단일 실험</span>
+        </div>
+        <div class="comparison-bars">
+          <div class="compare-row">
+            <div class="row-title"><span>기준 일정 · ID순 배정</span><strong id="baseline-minutes">—</strong></div>
+            <div class="track"><span class="fill baseline-fill" id="baseline-fill"></span></div>
+          </div>
+          <div class="compare-row">
+            <div class="row-title"><span>OR-Tools 일정 최적화</span><strong class="green-text" id="optimized-minutes">—</strong></div>
+            <div class="track"><span class="fill optimized-fill" id="optimized-fill"></span></div>
+          </div>
+          <div class="delta" id="single-delta">
+            <span>결과 계산 중</span><strong>—</strong>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <section class="bottom-grid">
+      <article class="panel compact" id="validation">
+        <div class="panel-heading">
+          <div>
+            <h2>검증 결과 요약</h2>
+            <p>로컬 검증 기록 · 2026-11-16 / 반복 실험 API 결과</p>
+          </div>
+          <span class="tag">RECORDED</span>
+        </div>
+        <table class="result-table">
+          <thead><tr><th>검증 항목</th><th>결과</th><th>상태</th></tr></thead>
+          <tbody>
+            <tr><td>Python 자동 테스트 <small>고정 기록</small></td><td><strong>21 / 21 통과</strong></td><td><span class="status pass">PASS</span></td></tr>
+            <tr><td>반복 실험 최적화 배정</td><td><strong id="validation-assigned">—</strong></td><td><span class="status" id="assignment-status">확인 중</span></td></tr>
+            <tr><td>최적화 시간 제약</td><td><strong id="validation-violations">—</strong></td><td><span class="status" id="violation-status">확인 중</span></td></tr>
+          </tbody>
+        </table>
+      </article>
+
+      <article class="panel compact" id="scope">
+        <div class="panel-heading">
+          <div>
+            <h2>실험 조건과 해석 범위</h2>
+            <p>발표자료에 반드시 함께 표시할 연구 한계</p>
+          </div>
+          <span class="tag">RESEARCH ONLY</span>
+        </div>
+        <div class="info-grid">
+          <div class="info"><span>데이터</span><strong>합성 방문정보</strong></div>
+          <div class="info"><span>계산 방식</span><strong>OR-Tools · VRPTW</strong></div>
+          <div class="info"><span>이동시간</span><strong>가상 평면 좌표</strong></div>
+          <div class="info"><span>현장 도입</span><strong>미실증</strong></div>
+        </div>
+      </article>
+    </section>
+
+    <footer class="footer">
+      <p>※ 합성 방문 데이터 기반 연구용 실험입니다. <strong>실제 의료기관 도입·의료적 판단·경제적 절감 효과는 검증되지 않았습니다.</strong></p>
+      <span>© PAICHAI NEXUS · CARE-LINK</span>
+    </footer>
+  </main>
+</body>
+</html>

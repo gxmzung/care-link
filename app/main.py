@@ -1,12 +1,16 @@
+from pathlib import Path
+
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import HTMLResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 from .optimizer import Visit, schedule, sample_visits
 
 from .v2_api import router as v2_router
 from .demo import router as demo_router
 
-app = FastAPI(title="CARE-LINK MVP", version="0.2.0")
+app = FastAPI(title="CARE-LINK MVP", version="0.6.0")
+app.mount("/static", StaticFiles(directory=Path(__file__).with_name("static")), name="static")
 app.include_router(v2_router)
 app.include_router(demo_router)
 

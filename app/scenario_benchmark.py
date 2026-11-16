@@ -41,6 +41,10 @@ def evaluate(seeds=range(10), count=8, time_limit_seconds=1):
     valid = [r["travel_reduction_percent"] for r in rows if r["travel_reduction_percent"] is not None]
     return {"data_type": "synthetic", "method": "seeded scenarios; deadline-first feasible greedy baseline vs OR-Tools",
             "scenario_count": len(rows), "comparable_scenarios": len(valid),
+            "baseline_assigned": sum(r["baseline_assigned"] for r in rows),
+            "optimized_assigned": sum(r["optimized_assigned"] for r in rows),
+            "both_feasible": sum(1 for r in rows if r["both_feasible"]),
+            "optimized_violations": sum(r["optimized_violations"] for r in rows),
             "comparison_rate_percent": round(100 * len(valid) / len(rows), 2) if rows else 0,
             "mean_reduction_percent_comparable_only": round(mean(valid), 2) if valid else None,
             "median_reduction_percent_comparable_only": round(median(valid), 2) if valid else None,

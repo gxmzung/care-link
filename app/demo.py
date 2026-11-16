@@ -1,5 +1,5 @@
 """v0.4 demo routes for reproducible synthetic experiment results."""
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from fastapi.responses import HTMLResponse
 from .benchmark import run
 
@@ -7,7 +7,10 @@ router = APIRouter(prefix="/demo", tags=["demo"])
 
 @router.get("/result")
 def result():
-    return run()
+    try:
+        return run()
+    except RuntimeError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
 
 @router.get("", response_class=HTMLResponse)
 def page():

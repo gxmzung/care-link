@@ -31,8 +31,12 @@ class OptimizeRequest(BaseModel):
 @router.get("/sample")
 def get_sample():
     visits, clinicians = sample()
+    try:
+        result = optimize(visits, clinicians)
+    except RuntimeError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
     return {"data_type": "synthetic", "visits": [vars(v) for v in visits],
-            "clinicians": [vars(c) for c in clinicians], "result": optimize(visits, clinicians)}
+            "clinicians": [vars(c) for c in clinicians], "result": result}
 
 
 @router.post("/optimize")
@@ -43,3 +47,5 @@ def post_optimize(payload: OptimizeRequest):
                                    [Clinician(**c.model_dump()) for c in payload.clinicians])}
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
+    except RuntimeError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc

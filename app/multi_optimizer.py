@@ -5,7 +5,7 @@ All coordinates and travel times are synthetic. No clinical decisions.
 from dataclasses import dataclass
 from math import hypot
 
-from ortools.constraint_solver import pywrapcp, routing_enums_pb2
+
 
 
 @dataclass(frozen=True)
@@ -37,6 +37,10 @@ def optimize(visits, clinicians, time_limit_seconds=3):
     Returns deterministic, explicitly validated schedules. Dropping a visit
     costs 100000 units; a feasible schedule is preferred over a dropped visit.
     """
+    try:
+        from ortools.constraint_solver import pywrapcp, routing_enums_pb2
+    except (ImportError, OSError) as exc:
+        raise RuntimeError("OR-Tools 네이티브 라이브러리를 로드할 수 없습니다. GitHub Actions(Linux)에서 검증하거나 조직의 Windows 정책 관리자에게 문의하세요.") from exc
     if not clinicians:
         raise ValueError("at least one clinician required")
     if len({v.id for v in visits}) != len(visits):
